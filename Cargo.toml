@@ -32,6 +32,7 @@ criterion = "0.3"
 oorandom = "11.1"
 crossbeam-deque = "0.8"
 num_cpus = "1.13"
+synqueue = { path = "../synqueue" }
 
 [[bench]]
 name = "benchmark"

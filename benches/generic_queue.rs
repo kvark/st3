@@ -90,6 +90,30 @@ impl<T: Send> GenericStealer<T> for tokio_queue::Steal<T> {
         })
     }
 }
+impl<T: Send> GenericStealer<T> for () {
+    type W = synqueue::SynQueue<T>;
+
+    fn steal_batch_and_pop(&self, _: &Self::W) -> Result<T, GenericStealError> {
+        unimplemented!()
+    }
+}
+
+impl<T: Send> GenericWorker<T> for synqueue::SynQueue<T> {
+    type S = ();
+
+    fn new() -> Self {
+        Self::new(1000)
+    }
+    fn push(&self, item: T) -> Result<(), T> {
+        self.push(item)
+    }
+    fn pop(&self) -> Option<T> {
+        self.pop()
+    }
+    fn stealer(&self) -> Self::S {
+        ()
+    }
+}
 
 /// Newtypes distinguishing between FIFO and LIFO crossbeam queues.
 pub struct CrossbeamFifoWorker<T>(crossbeam_deque::Worker<T>);
