@@ -43,8 +43,14 @@ pub fn push_pop_small_batch_crossbeam_fifo(c: &mut Criterion) {
 pub fn push_pop_small_batch_crossbeam_lifo(c: &mut Criterion) {
     push_pop::<usize, CrossbeamLifoWorker<_>, 64>("small_batch-crossbeam_lifo", c);
 }
-pub fn push_pop_small_batch_synqueue(c: &mut Criterion) {
-    push_pop::<usize, synqueue::SynQueue<_>, 64>("small_batch-synqueue", c);
+pub fn push_pop_small_batch_my_doublequeue(c: &mut Criterion) {
+    push_pop::<usize, synqueue::DoubleQueue<_>, 64>("small_batch-my-doublequeue", c);
+}
+pub fn push_pop_small_batch_my_maskedqueue(c: &mut Criterion) {
+    push_pop::<usize, synqueue::MaskedQueue<_>, 64>("small_batch-my-maskedqueue", c);
+}
+pub fn push_pop_small_batch_my_axelqueue(c: &mut Criterion) {
+    push_pop::<usize, synqueue::AxelQueue<_>, 64>("small_batch-my-axelqueue", c);
 }
 pub fn push_pop_large_batch_st3(c: &mut Criterion) {
     push_pop::<usize, st3::Worker<_, st3::B256>, 256>("large_batch-st3", c);
@@ -58,9 +64,16 @@ pub fn push_pop_large_batch_crossbeam_fifo(c: &mut Criterion) {
 pub fn push_pop_large_batch_crossbeam_lifo(c: &mut Criterion) {
     push_pop::<usize, CrossbeamLifoWorker<_>, 256>("large_batch-crossbeam_lifo", c);
 }
-pub fn push_pop_large_batch_synqueue(c: &mut Criterion) {
-    push_pop::<usize, synqueue::SynQueue<_>, 256>("large_batch-synqueue", c);
+pub fn push_pop_large_batch_my_doublequeue(c: &mut Criterion) {
+    push_pop::<usize, synqueue::DoubleQueue<_>, 256>("large_batch-my-doublequeue", c);
 }
+pub fn push_pop_large_batch_my_maskedqueue(c: &mut Criterion) {
+    push_pop::<usize, synqueue::MaskedQueue<_>, 256>("large_batch-my-maskedqueue", c);
+}
+pub fn push_pop_large_batch_my_axelqueue(c: &mut Criterion) {
+    push_pop::<usize, synqueue::AxelQueue<_>, 256>("large_batch-my-axelqueue", c);
+}
+
 
 // Multi-threaded synthetic benchmark.
 //
@@ -217,9 +230,6 @@ pub fn executor_crossbeam_fifo(c: &mut Criterion) {
 pub fn executor_crossbeam_lifo(c: &mut Criterion) {
     executor::<usize, CrossbeamLifoWorker<_>>("crossbeam_lifo", c);
 }
-pub fn executor_synqueue(c: &mut Criterion) {
-    executor::<usize, synqueue::SynQueue<_>>("synqueue", c);
-}
 
 criterion_group!(
     benches,
@@ -227,16 +237,19 @@ criterion_group!(
     push_pop_small_batch_tokio,
     push_pop_small_batch_crossbeam_fifo,
     push_pop_small_batch_crossbeam_lifo,
-    push_pop_small_batch_synqueue,
+    push_pop_small_batch_my_doublequeue,
+    push_pop_small_batch_my_maskedqueue,
+    push_pop_small_batch_my_axelqueue,
     push_pop_large_batch_st3,
     push_pop_large_batch_tokio,
     push_pop_large_batch_crossbeam_fifo,
     push_pop_large_batch_crossbeam_lifo,
-    push_pop_large_batch_synqueue,
+    push_pop_large_batch_my_doublequeue,
+    push_pop_large_batch_my_maskedqueue,
+    push_pop_large_batch_my_axelqueue,
     executor_st3,
     executor_tokio,
     executor_crossbeam_fifo,
     executor_crossbeam_lifo,
-    //executor_synqueue,
 );
 criterion_main!(benches);

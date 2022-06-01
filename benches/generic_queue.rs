@@ -90,28 +90,67 @@ impl<T: Send> GenericStealer<T> for tokio_queue::Steal<T> {
         })
     }
 }
-impl<T: Send> GenericStealer<T> for () {
-    type W = synqueue::SynQueue<T>;
+
+pub struct MyQueueStealer<Q>(std::marker::PhantomData<Q>);
+impl<T: Send, Q: synqueue::SynQueue<T> + GenericWorker<T>> GenericStealer<T> for MyQueueStealer<Q> {
+    type W = Q;
 
     fn steal_batch_and_pop(&self, _: &Self::W) -> Result<T, GenericStealError> {
         unimplemented!()
     }
 }
+impl<Q> Clone for MyQueueStealer<Q> {
+    fn clone(&self) -> Self {
+        Self(std::marker::PhantomData)
+    }
+}
 
-impl<T: Send> GenericWorker<T> for synqueue::SynQueue<T> {
-    type S = ();
+impl<T: Send> GenericWorker<T> for synqueue::DoubleQueue<T> {
+    type S = MyQueueStealer<Self>;
 
     fn new() -> Self {
-        Self::new(1000)
+        synqueue::SynQueue::new(16384)
     }
     fn push(&self, item: T) -> Result<(), T> {
-        self.push(item)
+        synqueue::SynQueue::push(self, item)
     }
     fn pop(&self) -> Option<T> {
-        self.pop()
+        synqueue::SynQueue::pop(self)
     }
     fn stealer(&self) -> Self::S {
-        ()
+        MyQueueStealer(std::marker::PhantomData)
+    }
+}
+impl<T: Send> GenericWorker<T> for synqueue::MaskedQueue<T> {
+    type S = MyQueueStealer<Self>;
+
+    fn new() -> Self {
+        synqueue::SynQueue::new(16384)
+    }
+    fn push(&self, item: T) -> Result<(), T> {
+        synqueue::SynQueue::push(self, item)
+    }
+    fn pop(&self) -> Option<T> {
+        synqueue::SynQueue::pop(self)
+    }
+    fn stealer(&self) -> Self::S {
+        MyQueueStealer(std::marker::PhantomData)
+    }
+}
+impl<T: Send> GenericWorker<T> for synqueue::AxelQueue<T> {
+    type S = MyQueueStealer<Self>;
+
+    fn new() -> Self {
+        synqueue::SynQueue::new(16384)
+    }
+    fn push(&self, item: T) -> Result<(), T> {
+        synqueue::SynQueue::push(self, item)
+    }
+    fn pop(&self) -> Option<T> {
+        synqueue::SynQueue::pop(self)
+    }
+    fn stealer(&self) -> Self::S {
+        MyQueueStealer(std::marker::PhantomData)
     }
 }
 
